@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,9 +44,25 @@ public class HotelController {
     public Hotel createHotel(@RequestBody Hotel hotelCalifornia) {
         return repository.save(hotelCalifornia);
     }
+    
+    // Update
+    @PutMapping(value = "/update/{id}")
+    public ResponseEntity<Hotel> update (@PathVariable Long id, @RequestBody Hotel hotelCalifornia){
+        return repository.findById(id)
+            .map(mapping ->{
+            mapping.setNome(hotelCalifornia.getNome());
+            mapping.setEndereco(hotelCalifornia.getEndereco());
+            mapping.setCapacid(hotelCalifornia.getCapacid());
 
+            Hotel update = repository.save(mapping);
+
+            return ResponseEntity.ok().body(update);
+            }).orElse(ResponseEntity.notFound().build());
+        }
+
+    // Delete
     @DeleteMapping(path = "/{id}")
-    public ResponseEntity<?> deleteHotel(@PathVariable long id) {
+    public ResponseEntity<?> deleteHotel(@PathVariable Long id) {
         return repository.findById(id)
                 .map(mapping -> {
                     repository.deleteById(id);
@@ -53,4 +70,5 @@ public class HotelController {
                     return ResponseEntity.ok().body("DELETADO COM SUCESSO!");
                 }).orElse(ResponseEntity.notFound().build());
     }
+
 }
